@@ -26,6 +26,31 @@ PORT=3000
 DB_NAME=ejemplo
 ```
 
+Adicionalmente puedes definir el secreto para los JWT:
+```
+JWT_SECRET=tu_secreto_super_seguro
+```
+
+Puedes generar un secreto seguro con alguno de estos comandos:
+
+- PowerShell (Windows): genera 48 bytes en base64
+
+```powershell
+$bytes = New-Object byte[] 48; (New-Object System.Security.Cryptography.RNGCryptoServiceProvider).GetBytes($bytes); [Convert]::ToBase64String($bytes)
+```
+
+- Node (cross-platform): genera 48 bytes en base64
+
+```powershell
+node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"
+```
+
+Copiala y pégala en tu `.env` así:
+
+```
+JWT_SECRET=la_cadena_generada_aqui
+```
+
 3. Ejecutar migraciones para crear las tablas:
 ```bash
 npm run migrate
@@ -85,6 +110,35 @@ npm run dev
 
 - `GET /users` - Obtener todos los usuarios
 - `POST /users` - Crear un nuevo usuario
+
+Autenticación / JWT
+
+- `POST /auth/login` - Iniciar sesión y recibir un JWT
+  - Body JSON: { "rut": "tu_rut", "contraseña": "tu_contraseña" }
+  - Respuesta: { "token": "<jwt>" }
+
+Notas sobre rutas protegidas
+
+- `GET /users` ahora está protegida: debes enviar el header
+  `Authorization: Bearer <token>` usando el token recibido en `/auth/login`.
+
+Ejemplo rápido con curl (PowerShell / bash):
+
+1) Login y obtener token:
+
+```bash
+curl -s -X POST http://localhost:3000/auth/login -H "Content-Type: application/json" -d '{"rut":"mi_rut","contraseña":"mi_pass"}'
+```
+
+2) Usar token para solicitar usuarios (reemplaza <TOKEN>):
+
+```bash
+curl -s http://localhost:3000/users -H "Authorization: Bearer <TOKEN>"
+```
+
+Cors
+
+- CORS está habilitado globalmente para desarrollo. Si deseas restringir orígenes, modifica `src/server.js` y ajusta `cors()` con la opción `origin`.
 
 ## Autor
 

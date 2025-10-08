@@ -1,9 +1,10 @@
 // Controladores para manejar las rutas relacionadas con los usuarios
-const { request, response } = require("express");
-const bcrypt = require("bcryptjs");
+const { request, response } = require('express')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 // Importamos el modelo de User
-const User = require("../models/user");
+const User = require('../models/user')
 
 /**
  * GET /users
@@ -11,13 +12,16 @@ const User = require("../models/user");
  */
 const getUsers = async (req = request, res = response) => {
   try {
-    // TODO: 
-    // 1. Obtener todos los usuarios de la base de datos usando User.findAll()
-    // 2. Retornar los usuarios con status 200
-    // 3. Si no hay usuarios, retornar 404 con mensaje "No users found"
-    
+    const users = await User.findAll({ attributes: { exclude: ['contraseña'] } })
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: 'No users found' })
+    }
+
+    return res.status(200).json(users)
   } catch (error) {
-    // TODO: Manejar errores y retornar status 500
+    console.error(error)
+    return res.status(500).json({ message: 'Server error' })
   }
 };
 
@@ -35,7 +39,6 @@ const createUser = async (req = request, res = response) => {
         message: "Los campos nombre, rut y contraseña son obligatorios" 
       });
     }
-
     // Validar que los campos no sean solo espacios en blanco
     if (nombre.trim() === '' || rut.trim() === '' || contraseña.trim() === '') {
       return res.status(400).json({ 
@@ -78,3 +81,43 @@ module.exports = {
   getUsers,
   createUser
 };
+
+// Login function moved outside createUser
+const login = async (req = request, res = response) => {
+  const { rut, contraseña } = req.body
+
+  try {
+    if (!rut || !contraseña) {
+      return res.status(400).json({ message: 'rut and contraseña are required' })
+    }
+
+    const user = await User.findOne({ where: { rut } })
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials' })
+    }
+
+    const validPassword = bcrypt.compareSync(contraseña, user.contraseña)
+
+    if (!validPassword) {
+      return res.status(400).json({ message: 'Invalid credentials' })
+    }
+
+    const payload = { id: user.id, nombre: user.nombre, rut: user.rut }
+    const secret = process.env.JWT_SECRET || 'change_this_secret'
+    const token = jwt.sign(payload, secret, { expiresIn: '8h' })
+
+    return res.json({ token })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ message: 'Server error' })
+  }
+}
+
+// Re-export with login
+module.exports = {
+  getUsers,
+  createUser,
+  login
+}
+

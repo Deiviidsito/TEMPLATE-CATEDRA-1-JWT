@@ -1,5 +1,6 @@
 require('dotenv').config()
 const express = require('express')
+const cors = require('cors')
 const database = require('./config/database')
 
 class Server {
@@ -17,7 +18,9 @@ class Server {
         this.connectDB()
 
         // JSON parsing
-        this.app.use(express.json())
+    this.app.use(express.json())
+    // CORS
+    this.app.use(cors())
 
         // Routes
         this.routes()
@@ -33,6 +36,10 @@ class Server {
     }
 
     routes() {
+        // Auth route
+        this.app.use('/auth', require('./routes/auth.routes'))
+
+        // User routes
         this.app.use(this.paths.users, require("./routes/user.routes"));
     }
 
