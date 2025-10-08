@@ -57,8 +57,20 @@ const createUser = async (req = request, res = response) => {
       contraseña: contraseñaHasheada
     });
 
-    // Retornar el usuario creado
-    res.status(201).json(nuevoUsuario);
+    // Generar token JWT y retornar el usuario sin la contraseña
+    const payload = { id: nuevoUsuario.id, nombre: nuevoUsuario.nombre, rut: nuevoUsuario.rut }
+    const secret = process.env.JWT_SECRET || 'change_this_secret'
+    const token = jwt.sign(payload, secret, { expiresIn: '8h' })
+
+    const usuarioSinPassword = {
+      id: nuevoUsuario.id,
+      nombre: nuevoUsuario.nombre,
+      rut: nuevoUsuario.rut,
+      createdAt: nuevoUsuario.createdAt,
+      updatedAt: nuevoUsuario.updatedAt
+    }
+
+    return res.status(201).json({ user: usuarioSinPassword, token })
     
   } catch (error) {
     console.error(error);
