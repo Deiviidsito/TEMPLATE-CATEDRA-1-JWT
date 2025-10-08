@@ -1,7 +1,7 @@
 {
-  "name": "ejemplo_clase",
+  "name": "catedra1",
   "version": "1.0.0",
-  "description": "proyecto de ejemplo para la clase",
+  "description": "",
   "main": "./src/app.js",
   "scripts": {
     "dev": "nodemon",
