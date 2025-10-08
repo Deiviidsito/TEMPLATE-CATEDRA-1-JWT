@@ -3,7 +3,7 @@ const { Router } = require('express')
 const router = Router()
 
 // Controllers
-const { getUsers /*, getUserById*/, createUser, updateUser, deleteUser } = require('../controllers/user.controller')
+const { getUsers, createUser } = require('../controllers/user.controller')
 
 // Routes
 router.get('/', getUsers)

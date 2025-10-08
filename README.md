@@ -1,4 +1,4 @@
-# Proyecto Backend - Gestión de Usuarios
+# Catedra 1 - DSWM
 
 Proyecto de ejemplo para aprender desarrollo backend con Node.js, Express y Sequelize.
 

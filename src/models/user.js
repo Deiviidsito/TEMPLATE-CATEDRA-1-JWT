@@ -3,16 +3,22 @@ const database = require('../config/database')
 
 class User extends Model {
     static id
-    static name
-    static lastName
+    static nombre
+    static rut
+    static contraseña
 }
 
 User.init({
-    name: {
+    nombre: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    lastName: {
+    rut: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    contraseña: {
         type: DataTypes.STRING,
         allowNull: false
     }
